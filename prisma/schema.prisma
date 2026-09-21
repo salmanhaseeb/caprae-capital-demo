@@ -4,8 +4,8 @@ generator client {
 }
 
 datasource db {
+  // Prisma 7: migration URL lives in prisma.config.ts; runtime URL in the pg adapter.
   provider = "postgresql"
-  url      = env("DATABASE_URL")
 }
 
 enum InteractionType {

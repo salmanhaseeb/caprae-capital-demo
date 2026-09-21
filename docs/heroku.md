@@ -105,6 +105,8 @@ Do not paste logs containing credentials or private interaction notes. Common ca
 
 ## Local verification and later releases
 
+If a build reports Prisma `P1012` about a datasource `url`, verify that the deployed `prisma/schema.prisma` contains only `provider = "postgresql"` in its datasource block. Prisma 7 reads the migration URL from `prisma.config.ts`; the application's PostgreSQL adapter reads `DATABASE_URL`. Do not add `url = env("DATABASE_URL")` to the schema. Commit and push the fix, then deploy that updated branch; retrying an older commit repeats the failure.
+
 ```sh
 nvm install
 nvm use
