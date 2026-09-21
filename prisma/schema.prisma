@@ -1,0 +1,124 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum InteractionType {
+  CALL
+  EMAIL
+  MEETING
+  LINKEDIN
+  NOTE
+  OTHER
+}
+
+enum RelationshipStatus {
+  UNKNOWN
+  CONTACTED
+  ENGAGED
+  INTERESTED
+  NURTURING
+  NOT_INTERESTED
+  DO_NOT_CONTACT
+}
+
+enum SellerReadiness {
+  UNKNOWN
+  NOT_READY
+  EXPLORING
+  READY
+}
+
+enum Sentiment {
+  UNKNOWN
+  POSITIVE
+  NEUTRAL
+  NEGATIVE
+  MIXED
+}
+
+enum SuccessionSignal {
+  UNKNOWN
+  NONE
+  POSSIBLE
+  CONFIRMED
+}
+
+model Organization {
+  id           String        @id @default(cuid())
+  name         String
+  createdAt    DateTime      @default(now()) @db.Timestamptz(3)
+  users        User[]
+  interactions Interaction[]
+}
+
+model User {
+  id             String        @id @default(cuid())
+  name           String
+  email          String        @unique
+  organizationId String
+  organization   Organization  @relation(fields: [organizationId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+  interactions   Interaction[]
+
+  // Referenced by Interaction to enforce that its author belongs to its tenant.
+  @@unique([organizationId, id])
+}
+
+// Shared catalog: no organization-specific intelligence belongs here.
+model Company {
+  id               String        @id @default(cuid())
+  name             String
+  domain           String        @unique
+  industry         String?
+  location         String?
+  employeeCount    Int?
+  // Demo convention: annual revenue in USD; null means unknown, not zero.
+  estimatedRevenue Decimal?      @db.Decimal(18, 2)
+  ceoName          String?
+  website          String?
+  createdAt        DateTime      @default(now()) @db.Timestamptz(3)
+  interactions     Interaction[]
+
+  @@index([name, id])
+  @@index([industry, location])
+  @@index([location])
+  @@index([employeeCount])
+  @@index([estimatedRevenue])
+}
+
+// Private relationship intelligence. RLS and CHECK constraints live in migrations.
+model Interaction {
+  id                      String             @id @default(cuid())
+  organizationId          String
+  companyId               String
+  userId                  String
+  interactionType         InteractionType
+  doNotContactConfirmedAt DateTime?          @db.Timestamptz(3)
+  contactName             String?            @db.VarChar(200)
+  rawNotes                String             @db.Text
+  aiAnalysis              Json?
+  analysisFailed          Boolean            @default(false)
+  aiSummary               String?            @db.Text
+  relationshipStatus      RelationshipStatus @default(UNKNOWN)
+  sellerReadiness         SellerReadiness    @default(UNKNOWN)
+  sentiment               Sentiment          @default(UNKNOWN)
+  successionSignal        SuccessionSignal   @default(UNKNOWN)
+  recommendedAction       String?            @db.Text
+  nextFollowUpAt          DateTime?          @db.Timestamptz(3)
+  createdAt               DateTime           @default(now()) @db.Timestamptz(3)
+  organization            Organization       @relation(fields: [organizationId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+  company                 Company            @relation(fields: [companyId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+  user                    User               @relation(fields: [organizationId, userId], references: [organizationId, id], onDelete: Restrict, onUpdate: Restrict)
+
+  @@unique([organizationId, id])
+  @@index([organizationId, companyId, createdAt, id])
+  @@index([organizationId, userId])
+  @@index([organizationId, nextFollowUpAt])
+  @@index([organizationId, relationshipStatus])
+  @@index([organizationId, companyId, interactionType])
+  @@index([companyId])
+}

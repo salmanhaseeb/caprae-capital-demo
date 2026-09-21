@@ -1,0 +1,118 @@
+@import "tailwindcss";
+
+:root {
+  --background: #f8faf9;
+  --foreground: #202c29;
+  --card: #ffffff;
+  --card-foreground: #202c29;
+  --popover: #ffffff;
+  --popover-foreground: #202c29;
+  --primary: #24765a;
+  --primary-foreground: #ffffff;
+  --secondary: #f1f5f3;
+  --secondary-foreground: #334b42;
+  --muted: #f5f7f6;
+  --muted-foreground: #667469;
+  --accent: #edf5f0;
+  --accent-foreground: #24765a;
+  --destructive: #ba4949;
+  --border: #e6eae7;
+  --input: #e0e6e2;
+  --ring: #6d9e85;
+  --radius: 0.625rem;
+}
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --font-sans: "Inter Variable", Arial, Helvetica, sans-serif;
+}
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-size: 14px;
+    -webkit-font-smoothing: antialiased;
+  }
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
+  button,
+  a,
+  input,
+  select {
+    -webkit-tap-highlight-color: transparent;
+  }
+  button:focus-visible,
+  a:focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 3px;
+  }
+  ::selection {
+    background: #d8ebdf;
+  }
+}
+@layer utilities {
+  .font-display {
+    letter-spacing: -0.035em;
+  }
+  .subtle-shadow {
+    box-shadow:
+      0 2px 3px #172d2003,
+      0 0 0 1px #172d2002;
+  }
+  .page-enter {
+    animation: page-enter 260ms ease-out both;
+  }
+  .fine-grid {
+    background-image:
+      linear-gradient(#47836709 1px, transparent 1px),
+      linear-gradient(90deg, #47836709 1px, transparent 1px);
+    background-size: 24px 24px;
+  }
+}
+@keyframes page-enter {
+  from {
+    opacity: 0;
+    transform: translateY(5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+@media (max-width: 639px) {
+  input:not([type="checkbox"]), select, textarea { font-size: 16px !important; }
+  button[data-slot="button"] { min-height: 44px; }
+}
