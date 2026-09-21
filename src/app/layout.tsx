@@ -2,6 +2,7 @@ import { Toaster } from "sonner";
 import type { Metadata } from "next";
 import { getDemoSession } from "@/server/demo-session";
 export const dynamic = "force-dynamic";
+export const runtime = "nodejs";
 import { AppShell } from "@/components/layout/app-shell";
 import "@fontsource-variable/inter";
 import "./globals.css";

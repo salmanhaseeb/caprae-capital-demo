@@ -11,3 +11,6 @@ test-results/
 
 # Persistent local PostgreSQL data (never commit)
 .local/
+
+.vercel/
+*.log

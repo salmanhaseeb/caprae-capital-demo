@@ -12,7 +12,9 @@ export function getDb() {
     globalDb.searchMemoryPrisma = new PrismaClient({
       adapter: new PrismaPg({
         connectionString: process.env.DATABASE_URL,
-        connectionTimeoutMillis: 5_000,
+        max: 3,
+        connectionTimeoutMillis: 10_000,
+        idleTimeoutMillis: 20_000,
       }),
     });
   return globalDb.searchMemoryPrisma;

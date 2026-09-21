@@ -9,6 +9,7 @@ import {
   getRememberedCompanies,
 } from "../../src/server/companies";
 import { getDb } from "../../src/server/db";
+import { inOrganization } from "../../src/server/tenant";
 import { EMPTY_FILTERS } from "../../src/lib/lead-search";
 
 test(
@@ -51,6 +52,13 @@ test(
             email: `${prefix}-b@example.test`,
           },
         ],
+      });
+      await inOrganization(a, async (tx) => {
+        const [settings] = await tx.$queryRaw<{ statement: string; idle: string }[]>`
+          SELECT current_setting('statement_timeout') AS statement,
+                 current_setting('idle_in_transaction_session_timeout') AS idle`;
+        assert.equal(settings.statement, "15s");
+        assert.equal(settings.idle, "20s");
       });
       await admin.company.createMany({
         data: ids.map((id, i) => ({

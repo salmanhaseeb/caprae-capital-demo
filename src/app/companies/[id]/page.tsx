@@ -26,6 +26,8 @@ import { LeadRelationshipBadge } from "@/components/leads/relationship-badge";
 import { RelationshipIntelligenceCard } from "@/components/companies/relationship-intelligence-card";
 import { InteractionTimeline } from "@/components/companies/interaction-timeline";
 import { LogInteractionDialog } from "@/components/companies/log-interaction-dialog";
+export const maxDuration = 60;
+
 const date = (value: Date) =>
   new Intl.DateTimeFormat("en-US", {
     year: "numeric",

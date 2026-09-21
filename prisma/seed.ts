@@ -4,6 +4,7 @@ import { PrismaClient } from "../src/generated/prisma/client";
 import { companies, interactions, organizations } from "./seed-data";
 
 async function main() {
+  if (process.env.NODE_ENV === "production" && process.env.ALLOW_DEMO_SEED !== "true") throw new Error("Set ALLOW_DEMO_SEED=true explicitly to seed a production demo database.");
   const connectionString = process.env.DIRECT_URL;
   if (!connectionString) {
     throw new Error("DIRECT_URL is required for seeding. Use the migration/admin connection to the intended demo database.");
@@ -75,10 +76,8 @@ async function main() {
   }
 }
 
-main().catch((error: unknown) => {
+main().catch(() => {
   // Do not print a connection URL or raw database error containing credentials.
-  console.error(error instanceof Error && !error.message.includes("postgres")
-    ? error.message
-    : "Seed failed. Check the demo database connection, migrations, and admin permissions.");
+  console.error("Seed failed. Check DIRECT_URL, migrations, admin permissions, and ALLOW_DEMO_SEED when NODE_ENV=production. No connection details were printed.");
   process.exitCode = 1;
 });

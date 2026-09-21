@@ -51,7 +51,8 @@ export async function analyzeRelationship(input: AnalysisInput | string): Promis
   if (!process.env.OPENAI_API_KEY?.trim())
     throw new RelationshipAnalysisError("AI analysis is not configured.");
   try {
-    const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY, timeout: 20_000, maxRetries: 0 });
+    // Leave time for the database save before Heroku's 30-second router deadline.
+    const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY, timeout: 15_000, maxRetries: 0 });
     // create(), rather than SDK parse(), lets our fallback parser handle fenced JSON.
     const response = await client.responses.create({
       model: process.env.OPENAI_MODEL || "gpt-4.1-mini",

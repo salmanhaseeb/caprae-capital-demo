@@ -1,0 +1,7 @@
+.env
+.env.*
+.local/
+.vercel/
+playwright-report/
+test-results/
+*.log

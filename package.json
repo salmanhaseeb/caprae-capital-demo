@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "engines": {
-    "node": ">=20.19.0"
+    "node": "22.x"
   },
   "scripts": {
     "db:format": "prisma format",
@@ -14,16 +14,21 @@
     "db:deploy": "prisma migrate deploy",
     "db:seed": "prisma generate && prisma db seed",
     "dev": "next dev",
-    "build": "next build",
+    "build": "next build --webpack",
+    "heroku-postbuild": "npm run build",
     "start": "next start",
+    "postinstall": "prisma generate",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "test:e2e": "playwright test",
     "test:unit": "node --import tsx --test tests/unit/*.test.ts",
     "test:integration": "node --conditions=react-server --import tsx --test tests/integration/*.test.ts",
-    "prebuild": "prisma generate",
+    "prebuild": "npm run check:env && prisma generate",
     "predev": "npm run db:local",
-    "db:local": "node scripts/local-database.mjs"
+    "db:local": "node scripts/local-database.mjs",
+    "check:env": "node scripts/check-env.mjs --production",
+    "db:check": "node scripts/check-database.mjs",
+    "check": "npm run db:generate && npm run db:validate && npm run lint && npm run typecheck && npm run test:unit"
   },
   "dependencies": {
     "@fontsource-variable/inter": "^5.3.0",
