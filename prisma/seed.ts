@@ -2,6 +2,7 @@ import "dotenv/config";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaClient } from "../src/generated/prisma/client";
 import { companies, interactions, organizations } from "./seed-data";
+import { databaseConnection } from "../src/lib/database-connection.mjs";
 
 async function main() {
   if (process.env.NODE_ENV === "production" && process.env.ALLOW_DEMO_SEED !== "true") throw new Error("Set ALLOW_DEMO_SEED=true explicitly to seed a production demo database.");
@@ -15,7 +16,7 @@ async function main() {
     throw new Error("SEED_REFERENCE_DATE must be a valid YYYY-MM-DD date.");
   }
   const dayOffset = (days: number) => new Date(referenceDate.getTime() + days * 86_400_000);
-  const prisma = new PrismaClient({ adapter: new PrismaPg({ connectionString }) });
+  const prisma = new PrismaClient({ adapter: new PrismaPg(databaseConnection(connectionString)) });
 
   try {
     await prisma.$transaction(async (tx) => {

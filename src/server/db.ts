@@ -1,6 +1,7 @@
 import "server-only";
 import { PrismaClient } from "@/generated/prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
+import { databaseConnection } from "@/lib/database-connection.mjs";
 export class DatabaseConfigurationError extends Error {}
 const globalDb = globalThis as unknown as { searchMemoryPrisma?: PrismaClient };
 export function getDb() {
@@ -11,7 +12,7 @@ export function getDb() {
   if (!globalDb.searchMemoryPrisma)
     globalDb.searchMemoryPrisma = new PrismaClient({
       adapter: new PrismaPg({
-        connectionString: process.env.DATABASE_URL,
+        ...databaseConnection(process.env.DATABASE_URL),
         max: 3,
         connectionTimeoutMillis: 10_000,
         idleTimeoutMillis: 20_000,

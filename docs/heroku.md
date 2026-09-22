@@ -13,6 +13,14 @@ Heroku runs the frontend and backend together as one Next.js web process. Neon r
 
 ## 1. Prepare Neon once
 
+### Existing Heroku Postgres Essential deployments
+
+If your app already uses Heroku Postgres Essential, it has only an owner credential. For this fictional demo, set `DATABASE_SSL_MODE=heroku` and `DEMO_ALLOW_DATABASE_OWNER=true` alongside `DEMO_MODE=true`. The application still rejects superuser/BYPASSRLS/role-administration privileges and requires enabled **and forced** row-level security on all three private tables. Organization context remains transaction-local and every application query remains tenant-scoped. The owner can alter its own schema, so this mode is less privileged separation than a dedicated runtime role and must not be used for private customer deployments.
+
+Heroku SSL mode encrypts the PostgreSQL connection using Heroku Common Runtime's certificate policy; it is restricted to Heroku/AWS endpoints and does not change TLS behavior for OpenAI or other services. Migrate using the same database URL in a private release environment with `sslmode=require&sslaccept=accept_invalid_certs`; seed with `DATABASE_SSL_MODE=heroku`, `DIRECT_URL` set privately, and `NODE_ENV=production ALLOW_DEMO_SEED=true`. Never log the URL or put it in a command committed to Git. The migrations and seed are repeatable; no reset is needed.
+
+Continue below only if provisioning Neon instead.
+
 If your Neon database is already migrated, seeded, and has the restricted runtime role, skip creation and run `npm run db:check` against it.
 
 Otherwise follow steps 2–4 of the [Neon setup guide](deployment.md):

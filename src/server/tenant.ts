@@ -13,6 +13,7 @@ export async function inOrganization<T>(
       // serverless proxy/pooler may ignore. LOCAL settings reset at transaction end.
       await tx.$executeRaw`SET LOCAL statement_timeout = '15s'`;
       await tx.$executeRaw`SET LOCAL idle_in_transaction_session_timeout = '20s'`;
+      const allowOwner = process.env.DEMO_MODE === "true" && process.env.DEMO_ALLOW_DATABASE_OWNER === "true";
       const [role] = await tx.$queryRaw<{ unsafe: boolean }[]>`SELECT EXISTS (
         SELECT 1 FROM pg_roles
         WHERE (rolsuper OR rolbypassrls OR rolcreaterole OR rolcreatedb OR rolname = 'neon_superuser')
@@ -20,7 +21,11 @@ export async function inOrganization<T>(
       ) OR EXISTS (
         SELECT 1 FROM pg_class WHERE relnamespace = 'public'::regnamespace
           AND relname IN ('Organization', 'User', 'Interaction')
-          AND pg_has_role(current_user, relowner, 'MEMBER')
+          AND pg_has_role(current_user, relowner, 'MEMBER') AND NOT ${allowOwner}
+      ) OR (
+        SELECT count(*) <> 3 OR NOT bool_and(relrowsecurity AND relforcerowsecurity)
+        FROM pg_class WHERE relnamespace = 'public'::regnamespace
+          AND relname IN ('Organization', 'User', 'Interaction') AND relkind = 'r'
       ) AS unsafe`;
       if (role?.unsafe) throw new TenantAccessError("The database access configuration is unavailable. Contact the workspace administrator.");
       await tx.$queryRaw`SELECT set_config('app.organization_id', ${session.organizationId}, true)`;

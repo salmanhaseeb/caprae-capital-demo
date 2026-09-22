@@ -4,6 +4,8 @@ const production = process.argv.includes("--production") || process.env.NODE_ENV
 for (const file of production ? [".env.production.local", ".env.local", ".env.production", ".env"] : [".env.development.local", ".env.local", ".env.development", ".env"])
   config({ path: file, quiet: true });
 const errors = [];
+if (process.env.DEMO_ALLOW_DATABASE_OWNER === "true" && process.env.DEMO_MODE !== "true") errors.push("Database owner mode is permitted only for fictional DEMO_MODE=true deployments.");
+if (process.env.DATABASE_SSL_MODE && process.env.DATABASE_SSL_MODE !== "heroku") errors.push("DATABASE_SSL_MODE must be heroku or unset.");
 function database(name, required) {
   const value = process.env[name];
   if (!value) { if (required) errors.push(`${name} is required.`); return; }
